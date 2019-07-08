@@ -31,13 +31,20 @@ def install_udev_rules(raise_exception):
 def check_root():
     return os.geteuid() == 0
 
+def is_udev_env():
+    family = os.uname()[0]
+    if family == 'Linux':
+        return True
+    return False
+
 class CustomInstall(install):
     def run(self):
-        if not hasattr(self,"root"):
-            install_udev_rules(True)
-        elif self.root is not None:
-            if 'debian' not in self.root:
+        if is_udev_env():
+            if not hasattr(self,"root"):
                 install_udev_rules(True)
+            elif self.root is not None:
+                if 'debian' not in self.root:
+                    install_udev_rules(True)
         install.run(self)
 
 setup(name='PSL',
